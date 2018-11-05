@@ -1,0 +1,26 @@
+
+import ccxt
+from datetime import datetime
+from time import sleep
+import json
+
+#bitbankにccxtのbitbankを使うデータを入力#
+bitbank=ccxt.bitbank({
+        "apiKey":"      ",
+        "secret":"      "
+                      })
+
+while(True):
+    #現在の価格を取得#
+    data=bitbank.fetch_ticker(symbol="XRP/JPY")
+    
+    #毎日100円ずつ積み立てていく#
+    amount=100/data["ask"]
+    #エントリー注文発行#
+    res=bitbank.create_order(symbol="XRP/JPY", type="market", side="buy",amount=str(amount), price=1 )
+  
+    print(str(datetime.now().strftime("%Y/%m/%d %H:%M:$S")))
+    print(json.dumps(res,indent=True))
+    print("---------------------------------")
+
+    sleep(60*60*24)
