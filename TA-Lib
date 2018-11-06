@@ -1,0 +1,39 @@
+# talibtest.py
+# -*- coding: utf-8 -*-
+import ccxt
+import MA
+import talib
+import numpy as np
+from time import sleep
+ 
+# bitMEX使用宣言
+bitmex = ccxt.bitmex({
+        "apiKey": "XXXXXXXXXXXXXXXXXXX",
+        "secret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        })
+ 
+# テストネット使用宣言
+bitmex.urls["api"] = bitmex.urls["test"]
+ 
+ 
+while( True ):
+    # 1分足10本移動平均値取得
+    data = MA.getMA( "1m", 10 )  # TA-Libの結果データと比較するため。
+    print(str(data))  # TA-Libの結果データと比較するため。
+ 
+    # タイムスタンプ取得
+    time = bitmex.fetch_ticker(symbol="BTC/USD")["timestamp"]
+    msec = 60 * 1000
+    time = time - 10 * msec
+     
+    # ローソク足のデータ取得
+    candles = bitmex.fetch_ohlcv(symbol="BTC/USD", timeframe = "1m", since = time)
+ 
+    # 終値取得
+    tmp = []
+    for candle in candles:
+        tmp.append( candle[4] )
+ 
+    data = talib.SMA(np.array(tmp,dtype='f8'), timeperiod=10) # TA-Libにて単純移動平均を算出
+    print( data )
+    sleep( 60 )
