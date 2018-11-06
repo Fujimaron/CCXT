@@ -1,0 +1,60 @@
+# -*- coding: utf-8 -*-
+
+import ccxt
+import MA #MA.pyをインポート
+from time import sleep
+ 
+# bitMEX使用宣言
+bitmex = ccxt.bitmex({
+        "apiKey": "go0b6GWQ5ryPHb_xL5qyYqr4",
+        "secret": "TWAhofaKZdCqj37vTwODnUU9vwUr0P0oW3PJJQmMIKjSSGGP"
+        })
+# テストネット使用宣言（本番時はコメントアウトする）
+bitmex.urls["api"] = bitmex.urls["test"]
+ 
+ 
+ 
+while( True ):
+    # 現在のポジション取得
+    tmp = bitmex.private_get_position()
+    pos = tmp[0]['currentQty'] # posには現在のポジションサイズが入ります。
+ 
+    # 5分足10本分移動平均値取得
+    data = MA.getMA( "5m", 10 )
+    if "error" == data:
+        # 移動平均値を取得できなかった
+        continue
+ 
+    # 現在データ取得
+    now = bitmex.fetch_ticker(symbol="BTC/USD")
+ 
+    amount = 0
+    # 現在の価格が移動平均値を上回ったか？
+    # 同方向にポジションを持っている場合は、売買しない
+    if data < now["ask"]: side = "buy" if 0 == pos: # ポジションを持ってない amount = 1 elif 0 > pos:
+            # ショートポジションを持っている
+            amount = 2
+ 
+    elif data > now["bid"]:
+        side = "sell"
+        # 現在の価格が移動平均値を下回った
+        if 0 == pos:
+            # ポジションを持ってない
+            amount = 1
+        elif 0 < pos:
+            # ロングポジションを持っている
+            amount = 2
+ 
+    if 0 != amount:
+        res = bitmex.create_order( symbol="BTC/USD", type="market", side=side, amount=str(amount) )
+        print("オーダー amount = " + str(amount) )
+    else:
+        print("発注無し")
+ 
+    # 5分スリープ
+    sleep( 60 * 5 )
+    
+    
+    
+    
+    
