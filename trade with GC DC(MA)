@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+
+
+import ccxt
+import numpy as np
+ 
+#--------------------------------
+# 単純移動平均（SMA）を取得する関数
+#--------------------------------
+def getMA( timeframe, num ):
+ 
+    # bitMEX使用宣言
+    bitmex = ccxt.bitmex()
+    # テストネット使用宣言（本番時はコメントアウトする）
+    bitmex.urls["api"] = bitmex.urls["test"]
+ 
+    # タイムスタンプ取得
+    time = bitmex.fetch_ticker(symbol="BTC/USD")["timestamp"]
+ 
+    # どの時間のローソク足のデータを取得したいかで処理分け
+    if "1d" == timeframe:
+        msec = 24 * 60 * 60 * 1000
+    elif "4h" == timeframe:
+        msec = 4 * 60 * 60 * 1000
+    elif "1h" == timeframe:
+        msec = 60 * 60 * 1000
+    elif "30m" == timeframe:
+        msec = 30 * 60 * 1000
+    elif "15m" == timeframe:
+        msec = 15 * 60 * 1000
+    elif "5m" == timeframe:
+        msec = 5 * 60 * 1000
+    elif "3m" == timeframe:
+        msec = 3 * 60 * 1000
+    elif "1m" == timeframe:
+        msec = 1 * 60 * 1000
+    else:
+        return "error"
+ 
+    time = time - num * msec
+ 
+    # ローソク足のデータ取得
+    candles = bitmex.fetch_ohlcv(symbol="BTC/USD", timeframe = timeframe, since = time)
+ 
+    tmp = []
+    # ローソク足のデータから終値のみを取り出す
+    for candle in candles:
+        tmp.append( candle[4] )
+ 
+    ar = np.array( tmp )
+ 
+    # 平均値計算
+    ma = np.average( ar ) 
+ 
+    return ma
