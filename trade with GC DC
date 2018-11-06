@@ -6,8 +6,8 @@ from time import sleep
  
 # bitMEX使用宣言
 bitmex = ccxt.bitmex({
-        "apiKey": "go0b6GWQ5ryPHb_xL5qyYqr4",
-        "secret": "TWAhofaKZdCqj37vTwODnUU9vwUr0P0oW3PJJQmMIKjSSGGP"
+        "apiKey": " ",
+        "secret": " "
         })
 # テストネット使用宣言（本番時はコメントアウトする）
 bitmex.urls["api"] = bitmex.urls["test"]
